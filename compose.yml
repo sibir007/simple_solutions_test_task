@@ -1,4 +1,4 @@
-version: '3.9'
+# version: '3.9'
 
 services:
 
@@ -16,16 +16,17 @@ services:
   #   depends_on:
   #     - redis
 
-  # worker:
-  #   build: ./project
-  #   command: celery -A worker.celery worker --loglevel=info
-  #   volumes:
-  #     - ./project:/usr/src/app
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #     - web
-  #     - redis
+  worker:
+    container_name: worker
+    build: ./project
+    command: celery -A worker.celery worker --loglevel=info
+    volumes:
+      - ./project:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      # - web
+      - redis
 
   redis:
     image: redis:latest
