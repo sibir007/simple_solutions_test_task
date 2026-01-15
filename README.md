@@ -33,3 +33,7 @@ Did not find any relations.
 celery=# \q
 (.venv) sibir007@sibir007:~/repos/simple_solutions-_test_task$ 
 ```
+
+```sh
+docker compose up -d --no-deps --build <service_name>
+```

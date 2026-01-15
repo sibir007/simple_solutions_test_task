@@ -2,13 +2,14 @@ version: '3.9'
 
 services:
 
-  # web:
-  #   build: ./project
-  #   ports:
-  #     - 8004:8000
-  #   command: uvicorn main:app --host 0.0.0.0 --reload
-  #   volumes:
-  #     - ./project:/usr/src/app
+  web:
+    container_name: web
+    build: ./project
+    ports:
+      - 8004:8000
+    command: uvicorn app:app --host 0.0.0.0 --reload
+    volumes:
+      - ./project:/usr/src/app
   #   environment:
   #     - CELERY_BROKER_URL=redis://redis:6379/0
   #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -28,6 +29,7 @@ services:
 
   redis:
     image: redis:latest
+    container_name: redis
 
   postgres:
     image: postgres:latest
