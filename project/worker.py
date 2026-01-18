@@ -1,4 +1,4 @@
-from selery_app.selery_conf import app
+from selery_app.app import app
 
 
 if __name__ == '__main__':

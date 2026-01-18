@@ -1,5 +1,5 @@
 import time
-from .selery_conf import app
+from .app import app
 from celery import Celery
 from celery.schedules import crontab
 

@@ -1,22 +1,19 @@
-import os
-import time
 
 from celery import Celery
+from .config import settings
 
-
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+# CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+# CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
 # CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
 # CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
 
 # Создаём экземпляр Celery
 app = Celery(
     "fastapi_celery",  # Имя приложения
-    broker=CELERY_BROKER_URL,  # URL брокера сообщений
-    backend=CELERY_RESULT_BACKEND,  # URL бэкенда результатов
     include=["selery_app.tasks"]  # Модули с задачами для автоматического импорта
 )
 
+app.config_from_object(settings)
 
 
 # # Конфигурация Celery

@@ -10,12 +10,12 @@ class BaseConfig:
     CELERY_RESULT_BACKEND: str = os.environ.get(
         "CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/0"
     )
-    CELERY_BEAT_SCHEDULE: dict = {
-        # "task-schedule-work": {
-        #     "task": "task_schedule_work",
-        #     "schedule": 5.0,  # five seconds
-        # }
-    }
+    # CELERY_BEAT_SCHEDULE: dict = {
+    #     # "task-schedule-work": {
+    #     #     "task": "task_schedule_work",
+    #     #     "schedule": 5.0,  # five seconds
+    #     # }
+    # }
 
 
 class DevelopmentConfig(BaseConfig):
