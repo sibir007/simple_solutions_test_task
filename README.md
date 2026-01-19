@@ -1,6 +1,8 @@
 # simple_solutions-_test_task
 https://testdriven.io/blog/fastapi-and-celery/
 https://python.plainenglish.io/asynchronous-task-queuing-with-celery-d9709364e686
+https://testdriven.io/blog/fastapi-sqlmodel/
+
 
 ```sh
 (.venv) sibir007@sibir007:~/repos/simple_solutions-_test_task$ sudo docker compose up -d
