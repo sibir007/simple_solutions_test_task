@@ -62,6 +62,10 @@ class StockBase:
         return (sub_cls for sub_cls in cls.__subclasses__())
 
     @classmethod
+    def _get_stock_name(cls) -> str:
+        return cls._stock_name
+
+    @classmethod
     def get_contract_size(cls) -> ContractSise:
         pass
 
@@ -69,9 +73,6 @@ class StockBase:
     def get_index_price(cls, index_name: str) -> IndexPrise:
         pass
 
-    @classmethod
-    def _get_stock_name(cls) -> str:
-        return cls._stock_name
 
 
 class SomeStock(StockBase):
@@ -87,24 +88,21 @@ class DeriBit(StockBase):
 
     @classmethod
     def get_index_price(cls, index_name: str) -> IndexPrise:
-        # connect_timeout, read_timeout = 5.0, 30.0
-        # url = f"https://test.deribit.com/api/v2/public/get_index_price?index_name={index_name}"
+        connect_timeout, read_timeout = 5.0, 30.0
+        url = f"https://test.deribit.com/api/v2/public/get_index_price?index_name={index_name}"
         
-        # response = requests.get(url, timeout=(connect_timeout, read_timeout))
-        # resp = response.json()
-        # if not resp.result:
-        #     raise requests.RequestException(resp)
-        # return IndexPrise(stock=cls._get_stock_name(), 
-        #                   idx=index_name, 
-        #                   idx_prise=resp.index_price,
-        #                   idx_prise_time=datetime.now(tz=timezone.utc))
-        print(f"----------{cls._get_stock_name()}---{index_name}------------------")
-
+        response = requests.get(url, timeout=(connect_timeout, read_timeout))
+        resp = response.json()
+        if not (rez := resp.get("result", None)):
+            raise requests.RequestException(resp.text)
+        return IndexPrise(stock=cls._get_stock_name(), 
+                          idx=index_name, 
+                          idx_prise=float(rez.get("index_price")),
+                          idx_prise_time=datetime.now(tz=timezone.utc))
+        # print(f"----------{cls._get_stock_name()}---{index_name}------------------")
+        # return response.text
 
 if __name__ == '__main__':
     print("call deribit_index_price")
-    StockBase.call_api_one('deribit', 'get_index_price', index_name='test')
-    print("call somestock get_index_price")
-    StockBase.call_api_one('somestock', 'get_index_price', index_name='test')
-    print("call all get_index_price")
-    StockBase.call_api_all('get_index_price', index_name='test')
+    res = StockBase.call_api_one('deribit', 'get_index_price', index_name='btc_usd')
+    print(res)
