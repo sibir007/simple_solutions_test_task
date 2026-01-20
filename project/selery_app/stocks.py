@@ -26,14 +26,14 @@ class StockBase:
         
         return clss_met[1](**kw)
     
-    @classmethod
-    def call_api_all(cls, api_name: str, **kw):
-        sub_clss_met = cls._get_all_sub_class_met_by_met_name(api_name)
-        if not sub_clss_met:
-            raise ValueError(f"api: {api_name} not found")
-        for cls_met in sub_clss_met:
-            cls_met[1](**kw)
-        return
+    # @classmethod
+    # def call_api_all(cls, api_name: str, **kw):
+    #     sub_clss_met = cls._get_all_sub_class_met_by_met_name(api_name)
+    #     if not sub_clss_met:
+    #         raise ValueError(f"api: {api_name} not found")
+    #     for cls_met in sub_clss_met:
+    #         cls_met[1](**kw)
+    #     return
 
 
     @classmethod
@@ -88,21 +88,39 @@ class DeriBit(StockBase):
 
     @classmethod
     def get_index_price(cls, index_name: str) -> IndexPrise:
+        # True case
+        # --------------------------------------------------------------------------------
+        # {
+        #   "jsonrpc": "2.0",
+        #   "result": {
+        #     "estimated_delivery_price": 90999.22,
+        #     "index_price": 90999.22
+        #   },
+        #   "usIn": 1768916400505372,
+        #   "usOut": 1768916400505576,
+        #   "usDiff": 204,
+        #   "testnet": true
+        # }
         connect_timeout, read_timeout = 5.0, 30.0
         url = f"https://test.deribit.com/api/v2/public/get_index_price?index_name={index_name}"
         
         response = requests.get(url, timeout=(connect_timeout, read_timeout))
-        resp = response.json()
-        if not (rez := resp.get("result", None)):
-            raise requests.RequestException(resp.text)
-        return IndexPrise(stock=cls._get_stock_name(), 
-                          idx=index_name, 
-                          idx_prise=float(rez.get("index_price")),
-                          idx_prise_time=datetime.now(tz=timezone.utc))
-        # print(f"----------{cls._get_stock_name()}---{index_name}------------------")
-        # return response.text
+        match response.json():
+            case {"result": { "index_price": prise}}:
+                return IndexPrise(stock=cls._get_stock_name(), 
+                                idx=index_name, 
+                                idx_prise=prise,
+                                # idx_prise=float(rez.get("index_price")),
+                                idx_prise_time=datetime.now(tz=timezone.utc))
+            case _ :
+                raise requests.RequestException(response.text)
+                
+                
 
 if __name__ == '__main__':
-    print("call deribit_index_price")
+    print("call true deribit_index_price")
     res = StockBase.call_api_one('deribit', 'get_index_price', index_name='btc_usd')
+    print(res)
+    print("call false deribit_index_price")
+    res = StockBase.call_api_one('deribit', 'get_index_price', index_name='false_idx')
     print(res)
