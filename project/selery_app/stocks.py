@@ -78,9 +78,10 @@ class StockBase:
 class SomeStock(StockBase):
     _stock_name = "somestock"
 
+    # TODO: implement
     @classmethod
     def get_index_price(cls, index_name: str) -> IndexPrise:
-        print(f"----------{cls._get_stock_name()}---{index_name}------------------")
+        raise NotImplementedError("NotImplementedError")
 
 class DeriBit(StockBase):
 
@@ -122,5 +123,13 @@ if __name__ == '__main__':
     res = StockBase.call_api_one('deribit', 'get_index_price', index_name='btc_usd')
     print(res)
     print("call false deribit_index_price")
-    res = StockBase.call_api_one('deribit', 'get_index_price', index_name='false_idx')
-    print(res)
+    try:
+        StockBase.call_api_one('deribit', 'get_index_price', index_name='false_idx')
+    except Exception as e:
+        print(e)
+    try:
+        StockBase.call_api_one('somestock', 'get_index_price', index_name='btc_usd')
+
+    except Exception as e:
+        print(e)
+

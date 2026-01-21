@@ -19,16 +19,49 @@ class BaseConfig:
 
 
 class DevelopmentConfig(BaseConfig):
-    pass
+
+    POSTGRES_USER: str = os.environ.get(
+        "POSTGRES_USER_DEV"
+    )
+    POSTGRES_PASSWORD: str = os.environ.get(
+        "POSTGRES_PASSWORD_DEV"
+    )
+    DB_HOST: str = os.environ.get(
+        "DB_HOST_DEV"
+    )
+    DB_PORT: str = os.environ.get(
+        "DB_PORT_DEV"
+    )
+    POSTGRES_DB: str = os.environ.get(
+        "POSTGRES_DB_DEV"
+    )
+    DATABASE_URL: str = f'postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{DB_HOST}:{DB_PORT}/{POSTGRES_DB}'
 
 
 class ProductionConfig(BaseConfig):
-    pass
+    POSTGRES_USER: str = os.environ.get(
+        "POSTGRES_USER_PROD"
+    )
+    POSTGRES_PASSWORD: str = os.environ.get(
+        "POSTGRES_PASSWORD_PROD"
+    )
+    DB_HOST: str = os.environ.get(
+        "DB_HOST_PROD"
+    )
+    DB_PORT: str = os.environ.get(
+        "DB_PORT_PROD"
+    )
+    POSTGRES_DB: str = os.environ.get(
+        "POSTGRES_DB_PROD"
+    )
+    DATABASE_URL: str = f'postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{DB_HOST}:{DB_PORT}/{POSTGRES_DB}'
+
 
 
 class TestConfig(BaseConfig):
-    pass
-
+    DATABASE_URL: str = os.environ.get(
+        "SQLITE_DATABASE_URL"
+    )
 
 
 def get_settings():
@@ -38,7 +71,7 @@ def get_settings():
         "test": TestConfig,
     }
 
-    config_name = os.environ.get("APP_CONFIG", "development")
+    config_name = os.environ.get("APP_CONFIG")
     config_cls = config_cls_dict[config_name]
     return config_cls()
 

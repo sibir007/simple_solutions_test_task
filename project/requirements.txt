@@ -12,5 +12,7 @@ gevent==25.9.1
 pybloom-live==4.0.0
 alembic==1.18.1
 
-psycopg2-binary==2.9.11
+# psycopg2-binary==2.9.11
 sqlmodel==0.0.31
+
+asyncpg=0.31.0 # for client
