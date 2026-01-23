@@ -1,4 +1,112 @@
-# simple_solutions-_test_task
+# simple_solutions_test_task
+
+# SRS
+
+1. Написать клиент для криптобиржи Deribit (https://docs.deribit.com/). Клиент должен каждую минуту забирать с биржи текущую цену btc_usd и eth_usd (index price валюты) после чего сохранять в базу данных тикер валюты, текущую цену и время в UNIX timestamp.
+
+**Выполнено:**
+
+**Celery worker задача:**
+```py
+# simple_solutions_test_task/project/selery_app/tasks.py
+...
+@app.task
+def get_index_price(index_name: str):
+
+    try:
+        raw_index_price = StockBase.call_api_one('deribit', 'get_index_price', index_name=index_name)
+    except requests.RequestException as e:
+        print(f"Request failed: {e}")
+        return False
+    
+    write_index_price(raw_index_price)
+    return True
+...
+```
+**Celery beat периодизация:**
+```py
+# simple_solutions_test_task/project/selery_app/tasks.py
+...
+
+@app.on_after_finalize.connect
+def setup_periodic_tasks(sender: Celery, **kwargs):
+    sender.add_periodic_task(60.0, get_index_price.s('btc_usd'), name='get_price_btc_usd')
+    sender.add_periodic_task(60.0, get_index_price.s('eth_usd'), name='get_price_eth_usd')
+    sender.add_periodic_task(60.0, get_index_price.s('btc_eurr'), name='get_price_btc_eurr')
+    sender.add_periodic_task(60.0, get_index_price.s('eth_eurr'), name='get_price_eth_eurr')
+...
+```
+
+2. Написать внешнее API для обработки сохраненных данных на FastAPI.
+
+**Выполнено**
+
+**Fastapi app:**
+```py
+# simple_solutions_test_task/project/fastapi_app/main/py
+...
+
+@app.get("/{stock}")
+async def home(
+    stock: Annotated[
+        Literal["deribit", "somestock"],
+        Path(title="Stock", description="Stock for request"),
+    ],
+    ticker: Annotated[
+        Literal["btc", "eth"], Query(title="Ticker", description="Ticker for request")
+    ],
+    index: Annotated[
+        Literal["usd", "eurr"] | None,
+        Query(title="Index", description="Index for request"),
+    ] = None,
+    dates: Annotated[
+        list[datetime] | None,
+        Query(title="Dates", description="Dates for request", max_length=2),
+    ] = None,
+):
+    
+    query_items = get_trick_index_info({"stock":stock, "ticker":ticker, "index":index, "dates":dates})
+    return query_items
+
+...
+
+```
+
+Обязательные требования:
+1. API должно включать в себя следующие методы:
+
+***Выполнено одним методом (entrypoint)***
+- Получение всех сохраненных данных по указанной валюте
+```py
+# simple_solutions_test_task/project/tests/test_tasks.py
+...
+# all prices for ticker by all indexes
+def test_case1(client):
+    response: Response = client.get("/deribit?ticker=btc") 
+    assert response.status_code == 200
+    resp: list[dict] = response.json()
+    assert len(resp) == 8640 # 3d*24h*60m*2index=8640rows
+    assert {'stock': 'deribit', 'ticker': 'btc', 'index': 'eurr', 'price': 1.0, 'date': '2026-01-01T15:25:00'} in resp
+    assert {'stock': 'deribit', 'ticker': 'btc', 'index': 'usd', 'price': 1.0, 'date': '2026-01-01T15:25:00'} in resp
+...
+```
+- Получение последней цены валюты
+- Получение цены валюты с фильтром по дате
+Все методы должны быть GET и у каждого метода должен быть обязательный query-параметр “ticker”.
+2. В качестве БД использовать PostgreSQL.
+3. Код выложить на gitlab с подробным readme и документацией по разворачиванию. В readme добавить секцию Design decisions.
+4. Для периодического получения цен использовать Celery.
+Необязательные требования:
+1. Написать unit тесты для основных методов
+2. Развернуть приложение в двух контейнерах для приложения и базы данных. 
+3. Применить aiohttp при написании клиента.
+
+
+
+
+
+
+
 https://testdriven.io/blog/fastapi-and-celery/
 https://python.plainenglish.io/asynchronous-task-queuing-with-celery-d9709364e686
 https://testdriven.io/blog/fastapi-sqlmodel/
