@@ -11,8 +11,3 @@ class ResponseInem(BaseModel):
     date: datetime
 
 
-class RequestModel(BaseModel):
-    stock: str
-    ticker: str
-    index: str
-    dates: list[datetime]

@@ -1,26 +1,28 @@
 import pytest
-from starlette.testclient import TestClient
+from fastapi.testclient import TestClient
 from datetime import datetime, timedelta
 from shemas.db_models import Stock, Index, Ticker, IndexPrice
 
-
-
 @pytest.fixture(scope="module")
-def test_app():
-    from fastapi_app import app
-    client = TestClient(app)
-    yield client 
-
-
-@pytest.fixture(scope="module")
-def test_db_session():
-    
+def init_env():
     from dotenv import load_dotenv
     load_dotenv()
     
     import os
     os.environ["APP_CONFIG"] = "test"
 
+
+@pytest.fixture(scope="module")
+def client(init_env):
+    from fastapi_app.main import app
+    client = TestClient(app)
+    yield client 
+
+
+@pytest.fixture(scope="module")
+def test_db_session(init_env):
+    
+    
     from database.db import init_db, engine
     from sqlmodel import Session
     with Session(engine) as s:

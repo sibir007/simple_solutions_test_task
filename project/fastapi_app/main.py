@@ -1,10 +1,11 @@
 from datetime import datetime
 from enum import Enum
 from typing import Annotated, Literal
-from fastapi import Body, FastAPI, Form, Path, Query, Request
+from fastapi import Body, FastAPI, Form, Path, Query
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 from selery_app.tasks import create_task
 from celery.result import AsyncResult
 from shemas.fastapi_app_shemas import ResponseInem
@@ -16,23 +17,27 @@ app.mount("/static", StaticFiles(directory="fastapi_app/static"), name="static")
 test_templates = Jinja2Templates(directory="fastapi_app/templates")
 
 
-
 @app.get("/{stock}")
 async def home(
-    stock: Annotated[Literal["deribit", "somestock"], Path(title="Stock", description="Stock for request")],
+    stock: Annotated[
+        Literal["deribit", "somestock"],
+        Path(title="Stock", description="Stock for request"),
+    ],
     ticker: Annotated[
         Literal["btc", "eth"], Query(title="Ticker", description="Ticker for request")
     ],
     index: Annotated[
-        Literal["usd", "eurr"] | None, Query(title="Index", description="Index for request")
+        Literal["usd", "eurr"] | None,
+        Query(title="Index", description="Index for request"),
     ] = None,
     dates: Annotated[
-        list[datetime] | None, Query(title="Dates", description="Dates for request", max_length=2)
-    ] = None
-) -> list[ResponseInem]:
+        list[datetime] | None,
+        Query(title="Dates", description="Dates for request", max_length=2),
+    ] = None,
+):
     
-    query_items = get_trick_index_info(stock, ticker, index, dates)
-    
+    query_items = get_trick_index_info({"stock":stock, "ticker":ticker, "index":index, "dates":dates})
+    # return {"stock":stock, "ticker":ticker, "index":index, "dates":dates}
     return query_items
 
 
