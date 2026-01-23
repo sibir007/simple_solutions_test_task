@@ -3,7 +3,7 @@ https://testdriven.io/blog/fastapi-and-celery/
 https://python.plainenglish.io/asynchronous-task-queuing-with-celery-d9709364e686
 https://testdriven.io/blog/fastapi-sqlmodel/
 
-
+https://pythonlib.ru/library-theme58
 ```sh
 (.venv) sibir007@sibir007:~/repos/simple_solutions-_test_task$ sudo docker compose up -d
 WARN[0000] /home/sibir007/repos/simple_solutions-_test_task/compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion WARN[0000] No services to build                         

@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 from .db import engine
 from shemas.selery_app_shemas import RawIndexPrise, RawContractSise
 from shemas.db_models import Stock, Index, IndexPrice, Ticker
@@ -76,6 +76,22 @@ def _get_index_case_6(stock, ticker, date: datetime):
     d2 = d1.replace(hour=23,minute=59,second=59,microsecond=999999)
     return _get_index_case_5(stock, ticker, [d1,d2])
 
+def _get_index_case_7(stock:str, ticker:str, index:str):
+    with Session(engine) as s:
+        select_st = select(
+                Stock.name,
+                Ticker.name,
+                Index.name,
+                IndexPrice.price,
+                func.max(IndexPrice.timestamp),
+            ).join(Stock).join(Ticker).join(Index)
+        select_st_where = select_st\
+            .where(Stock.name == stock)\
+                .where(Ticker.name == ticker)\
+                    .where(Index.name == index)
+        res_rows = s.exec(select_st_where).all()
+    return _pack_to_dict_list(res_rows)
+
 
 def get_trick_index_info(request):
     match request:
@@ -100,11 +116,12 @@ def get_trick_index_info(request):
                     
                     return _get_index_case_3(stock, ticker, index, dates) 
                 # case_4 client.get("/deribit?ticker=btc&index=usd&dates=2026-01-02T23:58:59.999999")
+                case [date] if date == "last":
+                    return _get_index_case_7(stock, ticker, index) 
                 case [date]:
-                    return _get_index_case_4(stock, ticker, index, date) 
+                    return _get_index_case_4(stock, ticker, index, date)
         
         case _:
             return [{"stock": None, "ticker": None, "index": None, "dates": None}]
 
-    # with Session(engine) as session:
 

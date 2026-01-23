@@ -6,7 +6,6 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from selery_app.tasks import create_task
 from celery.result import AsyncResult
 from shemas.fastapi_app_shemas import ResponseInem
 from database.read_data import get_trick_index_info
@@ -19,7 +18,7 @@ test_templates = Jinja2Templates(directory="fastapi_app/templates")
 
 @app.get("/{stock}", description="""
 """)
-async def home(
+async def get_index_price(
     stock: Annotated[
         Literal["deribit", "somestock"],
         Path(title="Stock", description="Stock for request"),
@@ -32,8 +31,13 @@ async def home(
         Query(title="Index", description="Index for request"),
     ] = None,
     dates: Annotated[
-        list[datetime] | None,
-        Query(title="Dates", description="Dates for request", max_length=2),
+        list[datetime] | list[Literal["last"]] | None,
+        Query(title="Dates", description="""Dates for request. 
+              If [datetime]: Selection by the specified date. 
+              If [datetime, datetime]: selection for the time period. 
+              If ["last"]: latest price. 
+              If None: selection for the entire time (without pagination)"""
+              , max_length=2),
     ] = None,
 ):
     

@@ -58,3 +58,12 @@ def test_case6(client):
     assert {'stock': 'deribit', 'ticker': 'btc', 'index': 'eurr', 'price': 1.0, 'date': '2026-01-02T17:20:00'} in resp
     assert not {'stock': 'deribit', 'ticker': 'btc', 'index': 'usd', 'price': 1.0, 'date': '2026-01-03T00:00:00'} in resp
     assert not {'stock': 'deribit', 'ticker': 'btc', 'index': 'eurr', 'price': 1.0, 'date': '2026-01-03T17:20:00'} in resp
+
+# last price
+def test_case7(client):
+    response: Response = client.get("/deribit?ticker=btc&index=usd&dates=last")
+    assert response.status_code == 200
+    resp: list[dict] = response.json()
+    assert len(resp) == 1
+    # assert not {'stock': 'deribit', 'ticker': 'btc', 'index': 'ust', 'price': 1.0, 'date': '2026-01-02T00:00:00'} in resp
+    assert [{'stock': 'deribit', 'ticker': 'btc', 'index': 'usd', 'price': 1.0, 'date': '2026-01-03T23:59:00'}] == resp
