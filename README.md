@@ -1,4 +1,4 @@
-# simple_solutions_test_task
+# deribit client
 
 ## SRS
 
